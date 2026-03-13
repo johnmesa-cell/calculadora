@@ -14,22 +14,25 @@ data class CalculadoraUiState(
     val expresion: String = "0",
     val resultado: String = "",
     val error: Boolean = false
-)
+) {
+    /**
+     * true cuando el display está en estado inicial ("0" limpio, sin resultado).
+     * La View usa esto para decidir si mostrar "AC" o "⌫" en el botón 1.
+     */
+    val displayEsInicial: Boolean
+        get() = expresion == "0" && resultado.isEmpty() && !error
+}
 
 /**
  * VIEWMODEL — reacciona a eventos del usuario y expone estado observable.
- * No importa ninguna clase de Compose ni de Android View.
  */
 class CalculadoraViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(CalculadoraUiState())
     val uiState: StateFlow<CalculadoraUiState> = _uiState.asStateFlow()
 
-    // ---- Helpers privados ----
     private fun ultimoCaracter() = _uiState.value.expresion.lastOrNull()
     private fun esOperador(c: Char?) = c in listOf('+', '-', '×', '÷')
-
-    // ---- Acciones públicas (llamadas desde la View) ----
 
     fun onKey(label: String) {
         when (label) {
@@ -39,6 +42,7 @@ class CalculadoraViewModel : ViewModel() {
             "%"                -> percent()
             "."                -> inputDot()
             "="                -> equals()
+            "OPCIONES"         -> { /* próximamente: menú avanzado */ }
             "+", "-", "×", "÷" -> inputOperador(label)
             else               -> if (label.all { it.isDigit() }) inputDigit(label)
         }
@@ -51,7 +55,7 @@ class CalculadoraViewModel : ViewModel() {
     private fun backspace() {
         _uiState.update { s ->
             when {
-                s.error             -> CalculadoraUiState()
+                s.error                  -> CalculadoraUiState()
                 s.resultado.isNotEmpty() -> s.copy(resultado = "")
                 else -> s.copy(
                     expresion = if (s.expresion.length <= 1) "0" else s.expresion.dropLast(1)

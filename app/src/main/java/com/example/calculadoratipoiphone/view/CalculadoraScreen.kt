@@ -19,14 +19,12 @@ import com.example.calculadoratipoiphone.ui.theme.CalculadoraTipoIPhoneTheme
 import com.example.calculadoratipoiphone.view.components.CalcRow
 import com.example.calculadoratipoiphone.viewmodel.CalculadoraViewModel
 
-// Paleta de colores — solo usada en la capa View
-internal val Negro   = Color.Black
-internal val Blanco  = Color.White
+internal val Negro  = Color.Black
+internal val Blanco = Color.White
 
 /**
  * VIEW — Pantalla completa de la calculadora.
  * Solo observa el estado del ViewModel y reenvía eventos.
- * No contiene lógica de negocio.
  */
 @Composable
 fun CalculadoraScreen(
@@ -34,6 +32,9 @@ fun CalculadoraScreen(
     viewModel: CalculadoraViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // Botón 1 de la fila superior alterna dinámicamente
+    val botonLimpiar = if (state.displayEsInicial) "AC" else "⌫"
 
     Column(
         modifier = modifier
@@ -71,16 +72,18 @@ fun CalculadoraScreen(
         }
 
         // ── Teclado ───────────────────────────────────────────────
+        // Fila 1: AC/⌫ · +/- · % · ÷
+        // Fila 5: OPCIONES · 0 · . · =   (OPCIONES reemplaza al +/-)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
-            CalcRow(listOf("AC", "⌫", "%", "÷")) { viewModel.onKey(it) }
-            CalcRow(listOf("7",  "8", "9", "×")) { viewModel.onKey(it) }
-            CalcRow(listOf("4",  "5", "6", "-")) { viewModel.onKey(it) }
-            CalcRow(listOf("1",  "2", "3", "+")) { viewModel.onKey(it) }
-            CalcRow(listOf("+/-","0", ".", "=")) { viewModel.onKey(it) }
+            CalcRow(listOf(botonLimpiar, "+/-", "%", "÷")) { viewModel.onKey(it) }
+            CalcRow(listOf("7", "8", "9", "×"))            { viewModel.onKey(it) }
+            CalcRow(listOf("4", "5", "6", "-"))            { viewModel.onKey(it) }
+            CalcRow(listOf("1", "2", "3", "+"))            { viewModel.onKey(it) }
+            CalcRow(listOf("OPCIONES", "0", ".", "="))      { viewModel.onKey(it) }
         }
     }
 }
