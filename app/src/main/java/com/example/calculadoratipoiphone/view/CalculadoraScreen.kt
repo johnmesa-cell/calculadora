@@ -73,7 +73,7 @@ fun CalculadoraScreen(
 
         // ── Teclado ───────────────────────────────────────────────
         // Fila 1: AC/⌫ · +/- · % · ÷
-        // Fila 5: OPCIONES · 0 · . · =   (OPCIONES reemplaza al +/-)
+        // Fila 5: ... · 0 · . · =   (... reemplaza al +/-)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -83,7 +83,7 @@ fun CalculadoraScreen(
             CalcRow(listOf("7", "8", "9", "×"))            { viewModel.onKey(it) }
             CalcRow(listOf("4", "5", "6", "-"))            { viewModel.onKey(it) }
             CalcRow(listOf("1", "2", "3", "+"))            { viewModel.onKey(it) }
-            CalcRow(listOf("OPCIONES", "0", ".", "="))      { viewModel.onKey(it) }
+            CalcRow(listOf("...", "0", ".", "="))      { viewModel.onKey(it) }
         }
     }
 }
