@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.update
 data class CalculadoraUiState(
     val expresion: String = "0",
     val resultado: String = "",
-    val error: Boolean = false
+    val error: Boolean = false,
+    val isConvertirEnabled: Boolean = false,
+    val isPanelVisible: Boolean = false
 ) {
     /**
      * true cuando el display está en estado inicial ("0" limpio, sin resultado).
@@ -143,5 +145,13 @@ class CalculadoraViewModel : ViewModel() {
                 s.copy(expresion = "Error", error = true)
             }
         }
+    }
+
+    fun toggleConvertir() {
+        _uiState.update { it.copy(isConvertirEnabled = !it.isConvertirEnabled) }
+    }
+
+    fun togglePanel() {
+        _uiState.update { it.copy(isPanelVisible = !it.isPanelVisible) }
     }
 }

@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,13 +24,25 @@ private val GrisClaro  = Color(0xFFBFBFBF)
  * Recibe la lista de etiquetas y el callback de pulsación.
  */
 @Composable
-fun CalcRow(labels: List<String>, onPress: (String) -> Unit) {
+fun CalcRow(labels: List<Any>, onPress: (Any) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth()) {
         labels.forEach { label ->
-            val isOperator = label in listOf("÷", "×", "-", "+", "=")
-            val isFunc     = label in listOf("AC", "⌫", "%", "+/-")
-            val bg = when { isOperator -> Naranja; isFunc -> GrisOscuro; else -> GrisClaro }
-            val fg = when { isOperator -> Color.White; isFunc -> Color.White; else -> Color.Black }
+            // Determinar colores según tipo
+            val isOperator = label is String && label in listOf("÷", "×", "-", "+", "=")
+            val isFunc     = label is String && label in listOf("AC", "⌫", "%", "+/-")
+            // Si es icono, asumimos estilo de botón de función (fondo oscuro, icono blanco)
+            val isIcon     = label is ImageVector
+
+            val bg = when {
+                isOperator -> Naranja
+                isFunc || isIcon -> GrisOscuro
+                else -> GrisClaro
+            }
+            val fg = when {
+                isOperator || isFunc || isIcon -> Color.White
+                else -> Color.Black
+            }
+
             CalcCell(label = label, bg = bg, fg = fg) { onPress(label) }
         }
     }
@@ -38,7 +52,7 @@ fun CalcRow(labels: List<String>, onPress: (String) -> Unit) {
  * Botón individual circular de la calculadora.
  */
 @Composable
-fun RowScope.CalcCell(label: String, bg: Color, fg: Color, onPress: () -> Unit) {
+fun RowScope.CalcCell(label: Any, bg: Color, fg: Color, onPress: () -> Unit) {
     Box(
         modifier = Modifier
             .weight(1f)
@@ -52,12 +66,24 @@ fun RowScope.CalcCell(label: String, bg: Color, fg: Color, onPress: () -> Unit) 
             colors = ButtonDefaults.buttonColors(containerColor = bg),
             contentPadding = PaddingValues(0.dp)
         ) {
-            Text(
-                text = label,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Medium,
-                color = fg
-            )
+            when (label) {
+                is String -> {
+                    Text(
+                        text = label,
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = fg
+                    )
+                }
+                is ImageVector -> {
+                    Icon(
+                        imageVector = label,
+                        contentDescription = "Calculator Action",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
         }
     }
 }

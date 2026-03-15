@@ -1,7 +1,11 @@
 package com.example.calculadoratipoiphone.view
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+
+import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -17,6 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.Text
 import com.example.calculadoratipoiphone.ui.theme.CalculadoraTipoIPhoneTheme
 import com.example.calculadoratipoiphone.view.components.CalcRow
+import com.example.calculadoratipoiphone.view.components.ConvertirPanel
 import com.example.calculadoratipoiphone.viewmodel.CalculadoraViewModel
 
 internal val Negro  = Color.Black
@@ -79,11 +84,31 @@ fun CalculadoraScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
-            CalcRow(listOf(botonLimpiar, "+/-", "%", "÷")) { viewModel.onKey(it) }
-            CalcRow(listOf("7", "8", "9", "×"))            { viewModel.onKey(it) }
-            CalcRow(listOf("4", "5", "6", "-"))            { viewModel.onKey(it) }
-            CalcRow(listOf("1", "2", "3", "+"))            { viewModel.onKey(it) }
-            CalcRow(listOf("...", "0", ".", "="))      { viewModel.onKey(it) }
+            // Panel de Convertir (agregado)
+            AnimatedVisibility(visible = state.isPanelVisible) {
+                Column {
+                    ConvertirPanel(
+                        isEnabled = state.isConvertirEnabled,
+                        onToggle = { viewModel.toggleConvertir() }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp)) // Espaciado visual
+                }
+            }
+
+            // Handler unificado para cualquier tipo de tecla
+            val onKeyAction: (Any) -> Unit = { key ->
+                when (key) {
+                    is String -> viewModel.onKey(key)
+                    Icons.Default.Calculate -> viewModel.togglePanel()
+                }
+            }
+
+            CalcRow(listOf(botonLimpiar, "+/-", "%", "÷"), onKeyAction)
+            CalcRow(listOf("7", "8", "9", "×"), onKeyAction)
+            CalcRow(listOf("4", "5", "6", "-"), onKeyAction)
+            CalcRow(listOf("1", "2", "3", "+"), onKeyAction)
+            // Reemplazo de "..." por el icono de calculadora
+            CalcRow(listOf(Icons.Default.Calculate, "0", ".", "="), onKeyAction)
         }
     }
 }
