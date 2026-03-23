@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 
 import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.History
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -19,6 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.Text
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.calculadoratipoiphone.ui.theme.CalculadoraTipoIPhoneTheme
 import com.example.calculadoratipoiphone.view.components.CalcRow
 import com.example.calculadoratipoiphone.view.components.ConvertirPanel
@@ -27,6 +30,7 @@ import com.example.calculadoratipoiphone.viewmodel.CalculadoraViewModel
 internal val Negro  = Color.Black
 internal val Blanco = Color.White
 
+
 /**
  * VIEW — Pantalla completa de la calculadora.
  * Solo observa el estado del ViewModel y reenvía eventos.
@@ -34,7 +38,8 @@ internal val Blanco = Color.White
 @Composable
 fun CalculadoraScreen(
     modifier: Modifier = Modifier,
-    viewModel: CalculadoraViewModel = viewModel()
+    navController: NavController,
+    viewModel: CalculadoraViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -46,6 +51,22 @@ fun CalculadoraScreen(
             .fillMaxSize()
             .background(Negro)
     ) {
+        // Botón de Historial en la parte superior
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            androidx.compose.material3.IconButton(onClick = { navController.navigate("historial") }) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Default.History,
+                    contentDescription = "Historial",
+                    tint = Color.Gray
+                )
+            }
+        }
+        
         Spacer(modifier = Modifier.weight(1f))
 
         // ── Display ──────────────────────────────────────────────
@@ -99,7 +120,7 @@ fun CalculadoraScreen(
             val onKeyAction: (Any) -> Unit = { key ->
                 when (key) {
                     is String -> viewModel.onKey(key)
-                    Icons.Default.Calculate -> viewModel.togglePanel()
+                    Icons.Default.Calculate -> navController.navigate("conversor")
                 }
             }
 
@@ -116,5 +137,10 @@ fun CalculadoraScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewCalculadoraScreen() {
-    CalculadoraTipoIPhoneTheme { CalculadoraScreen() }
+    CalculadoraTipoIPhoneTheme { 
+        CalculadoraScreen(
+            navController = rememberNavController(),
+            viewModel = viewModel()
+        ) 
+    }
 }
