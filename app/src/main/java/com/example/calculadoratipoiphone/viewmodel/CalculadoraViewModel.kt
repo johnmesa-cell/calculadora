@@ -15,7 +15,9 @@ data class CalculadoraUiState(
     val resultado: String = "",
     val error: Boolean = false,
     val isConvertirEnabled: Boolean = false,
-    val isPanelVisible: Boolean = false
+    val isPanelVisible: Boolean = false,
+    val isDegrees: Boolean = true,
+    val historial: List<String> = emptyList()
 ) {
     /**
      * true cuando el display está en estado inicial ("0" limpio, sin resultado).
@@ -34,7 +36,7 @@ class CalculadoraViewModel : ViewModel() {
     val uiState: StateFlow<CalculadoraUiState> = _uiState.asStateFlow()
 
     private fun ultimoCaracter() = _uiState.value.expresion.lastOrNull()
-    private fun esOperador(c: Char?) = c in listOf('+', '-', '×', '÷')
+    private fun esOperador(c: Char?) = c in listOf('+', '-', '×', '÷', '^')
 
     fun onKey(label: String) {
         when (label) {
@@ -44,8 +46,17 @@ class CalculadoraViewModel : ViewModel() {
             "%"                -> percent()
             "."                -> inputDot()
             "="                -> equals()
+            "sin"              -> onSin()
+            "cos"              -> onCos()
+            "tan"              -> onTan()
+            "log"              -> onLog()
+            "ln"               -> onLn()
+            "sqrt"             -> onSqrt()
+            "x²"               -> onSquare()
+            "x^y"              -> inputOperador("^")
+            "deg/rad"          -> toggleDegrees()
             "OPCIONES"         -> { /* próximamente: menú avanzado */ }
-            "+", "-", "×", "÷" -> inputOperador(label)
+            "+", "-", "×", "÷", "^" -> inputOperador(label)
             else               -> if (label.all { it.isDigit() }) inputDigit(label)
         }
     }
@@ -139,8 +150,13 @@ class CalculadoraViewModel : ViewModel() {
             if (s.error || esOperador(ultimoCaracter())) return@update s
             try {
                 val res = CalculadoraModel.evaluar(s.expresion)
-                if (res.isNaN()) s.copy(expresion = "Error", error = true)
-                else s.copy(resultado = CalculadoraModel.formatear(res))
+                if (res.isNaN()) {
+                    s.copy(expresion = "Error", error = true)
+                } else {
+                    val resStr = CalculadoraModel.formatear(res)
+                    val historyEntry = "${s.expresion} = $resStr"
+                    s.copy(resultado = resStr, historial = s.historial + historyEntry)
+                }
             } catch (_: Exception) {
                 s.copy(expresion = "Error", error = true)
             }
@@ -153,5 +169,53 @@ class CalculadoraViewModel : ViewModel() {
 
     fun togglePanel() {
         _uiState.update { it.copy(isPanelVisible = !it.isPanelVisible) }
+    }
+
+    fun toggleDegrees() {
+        _uiState.update { it.copy(isDegrees = !it.isDegrees) }
+    }
+
+    private fun onSin() {
+        applyUnaryOp("sin") { v, deg -> CalculadoraModel.seno(v, deg) }
+    }
+    private fun onCos() {
+        applyUnaryOp("cos") { v, deg -> CalculadoraModel.coseno(v, deg) }
+    }
+    private fun onTan() {
+        applyUnaryOp("tan") { v, deg -> CalculadoraModel.tangente(v, deg) }
+    }
+    private fun onLog() {
+        applyUnaryOp("log") { v, _ -> CalculadoraModel.logaritmoBase10(v) }
+    }
+    private fun onLn() {
+        applyUnaryOp("ln") { v, _ -> CalculadoraModel.logaritmoNatural(v) }
+    }
+    private fun onSqrt() {
+        applyUnaryOp("√") { v, _ -> CalculadoraModel.raizCuadrada(v) }
+    }
+    private fun onSquare() {
+        applyUnaryOp("sqr") { v, _ -> CalculadoraModel.cuadrado(v) }
+    }
+
+    private fun applyUnaryOp(opName: String, op: (Double, Boolean) -> Double) {
+        _uiState.update { s ->
+            if (s.error) return@update s
+            val lastOpIndex = s.expresion.indexOfLast { esOperador(it) }
+            val ultimoNumeroStr = if (lastOpIndex == -1) s.expresion
+            else s.expresion.substring(lastOpIndex + 1)
+            
+            val v = ultimoNumeroStr.toDoubleOrNull() ?: return@update s
+            
+            val res = op(v, s.isDegrees)
+            val resStr = CalculadoraModel.formatear(res)
+            
+            val historyEntry = "$opName($ultimoNumeroStr) = $resStr"
+            val newHistory = s.historial + historyEntry
+            
+            val nuevaExpr = if (lastOpIndex == -1) resStr
+            else s.expresion.substring(0, lastOpIndex + 1) + resStr
+            
+            s.copy(expresion = nuevaExpr, historial = newHistory)
+        }
     }
 }
