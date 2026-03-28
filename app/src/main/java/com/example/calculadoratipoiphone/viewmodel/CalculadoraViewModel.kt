@@ -16,7 +16,8 @@ data class CalculadoraUiState(
     val error: Boolean = false,
     val isConvertirEnabled: Boolean = false,
     val isPanelVisible: Boolean = false,
-    val historial: List<String> = emptyList()
+    val historial: List<String> = emptyList(),
+    val isDegrees: Boolean = true
 ) {
     /**
      * true cuando el display está en estado inicial ("0" limpio, sin resultado).
@@ -53,6 +54,8 @@ class CalculadoraViewModel : ViewModel() {
             "sqrt"             -> onSqrt()
             "x²"               -> onSquare()
             "x^y"              -> inputOperador("^")
+            "π"                -> onPi()
+            "deg/rad"          -> toggleDegrees()
             "OPCIONES"         -> { /* próximamente: menú avanzado */ }
             "+", "-", "×", "÷", "^" -> inputOperador(label)
             else               -> if (label.all { it.isDigit() }) inputDigit(label)
@@ -169,16 +172,29 @@ class CalculadoraViewModel : ViewModel() {
         _uiState.update { it.copy(isPanelVisible = !it.isPanelVisible) }
     }
 
+    fun toggleDegrees() {
+        _uiState.update { it.copy(isDegrees = !it.isDegrees) }
+    }
+
+    private fun onPi() {
+        _uiState.update { s ->
+            if (s.error) return@update s
+            val piValue = CalculadoraModel.formatear(kotlin.math.PI)
+            val nuevaExpr = if (s.expresion == "0") piValue else s.expresion + piValue
+            s.copy(expresion = nuevaExpr)
+        }
+    }
+
     private fun onSin() {
-        applyUnaryOp("sin") { v -> CalculadoraModel.seno(v) }
+        applyUnaryOp("sin") { v -> CalculadoraModel.seno(v, _uiState.value.isDegrees) }
     }
     
     private fun onCos() {
-        applyUnaryOp("cos") { v -> CalculadoraModel.coseno(v) }
+        applyUnaryOp("cos") { v -> CalculadoraModel.coseno(v, _uiState.value.isDegrees) }
     }
     
     private fun onTan() {
-        applyUnaryOp("tan") { v -> CalculadoraModel.tangente(v) }
+        applyUnaryOp("tan") { v -> CalculadoraModel.tangente(v, _uiState.value.isDegrees) }
     }
     
     private fun onLog() {

@@ -112,7 +112,9 @@ fun CalculadoraScreen(
                 Column {
                     ConvertirPanel(
                         isEnabled = state.isConvertirEnabled,
-                        onToggle = { viewModel.toggleConvertir() }
+                        onToggle = { viewModel.toggleConvertir() },
+                        onBack = null,
+                        viewModel = viewModel
                     )
                     Spacer(modifier = Modifier.height(8.dp)) // Espaciado visual
                 }

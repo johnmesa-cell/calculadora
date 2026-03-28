@@ -131,8 +131,7 @@ fun ConvertirPanel(
                         fila.forEach { label ->
                             Button(
                                 onClick = { 
-                                    if (label == "π") { /* No implementado */ } 
-                                    else viewModel.onKey(label) 
+                                    viewModel.onKey(label)
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3A3A3C)),
                                 shape = RoundedCornerShape(50),

@@ -74,10 +74,7 @@ fun HistoryScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 16.dp),
-                reverseLayout = true // Para ver los más recientes abajo o usar reverseLayout=false y ver recientes arriba si la lista está en orden de insercion.
-                // En viewModel yo hacía `historial + entry`, así que el último es el más reciente (al final de la lista).
-                // Si quiero ver recientes arriba, reverseLayout=true mostrará el final de la lista arriba.
-                // Espera, reverseLayout=true muestra el item 0 ABAJO y el item N ARRIBA.
+                reverseLayout = true // Muestra los items más recientes arriba (el último item de la lista aparece primero)
                 // Si agrego al final, el mas nuevo es el utimo.
                 // LazyColumn empieza desde arriba. Si reverse=true, empieza desde abajo.
                 // Probemos normal y vemos.
