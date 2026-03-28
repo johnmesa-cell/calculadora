@@ -16,7 +16,6 @@ data class CalculadoraUiState(
     val error: Boolean = false,
     val isConvertirEnabled: Boolean = false,
     val isPanelVisible: Boolean = false,
-    val isDegrees: Boolean = true,
     val historial: List<String> = emptyList()
 ) {
     /**
@@ -54,7 +53,6 @@ class CalculadoraViewModel : ViewModel() {
             "sqrt"             -> onSqrt()
             "x²"               -> onSquare()
             "x^y"              -> inputOperador("^")
-            "deg/rad"          -> toggleDegrees()
             "OPCIONES"         -> { /* próximamente: menú avanzado */ }
             "+", "-", "×", "÷", "^" -> inputOperador(label)
             else               -> if (label.all { it.isDigit() }) inputDigit(label)
@@ -171,33 +169,35 @@ class CalculadoraViewModel : ViewModel() {
         _uiState.update { it.copy(isPanelVisible = !it.isPanelVisible) }
     }
 
-    fun toggleDegrees() {
-        _uiState.update { it.copy(isDegrees = !it.isDegrees) }
-    }
-
     private fun onSin() {
-        applyUnaryOp("sin") { v, deg -> CalculadoraModel.seno(v, deg) }
+        applyUnaryOp("sin") { v -> CalculadoraModel.seno(v) }
     }
+    
     private fun onCos() {
-        applyUnaryOp("cos") { v, deg -> CalculadoraModel.coseno(v, deg) }
+        applyUnaryOp("cos") { v -> CalculadoraModel.coseno(v) }
     }
+    
     private fun onTan() {
-        applyUnaryOp("tan") { v, deg -> CalculadoraModel.tangente(v, deg) }
+        applyUnaryOp("tan") { v -> CalculadoraModel.tangente(v) }
     }
+    
     private fun onLog() {
-        applyUnaryOp("log") { v, _ -> CalculadoraModel.logaritmoBase10(v) }
+        applyUnaryOp("log") { v -> CalculadoraModel.logaritmoBase10(v) }
     }
+    
     private fun onLn() {
-        applyUnaryOp("ln") { v, _ -> CalculadoraModel.logaritmoNatural(v) }
+        applyUnaryOp("ln") { v -> CalculadoraModel.logaritmoNatural(v) }
     }
+    
     private fun onSqrt() {
-        applyUnaryOp("√") { v, _ -> CalculadoraModel.raizCuadrada(v) }
+        applyUnaryOp("√") { v -> CalculadoraModel.raizCuadrada(v) }
     }
+    
     private fun onSquare() {
-        applyUnaryOp("sqr") { v, _ -> CalculadoraModel.cuadrado(v) }
+        applyUnaryOp("sqr") { v -> CalculadoraModel.cuadrado(v) }
     }
-
-    private fun applyUnaryOp(opName: String, op: (Double, Boolean) -> Double) {
+    
+    private fun applyUnaryOp(opName: String, op: (Double) -> Double) {
         _uiState.update { s ->
             if (s.error) return@update s
             val lastOpIndex = s.expresion.indexOfLast { esOperador(it) }
@@ -206,7 +206,7 @@ class CalculadoraViewModel : ViewModel() {
             
             val v = ultimoNumeroStr.toDoubleOrNull() ?: return@update s
             
-            val res = op(v, s.isDegrees)
+            val res = op(v)
             val resStr = CalculadoraModel.formatear(res)
             
             val historyEntry = "$opName($ultimoNumeroStr) = $resStr"
