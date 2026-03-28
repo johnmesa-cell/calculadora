@@ -36,20 +36,19 @@ com.example.calculadoratipoiphone/
   - Archivo: CalculadoraViewModel.kt
   - Responsabilidad: Mantiene CalculadoraUiState como StateFlow inmutable; expone onKey(label).
 * View
-  ◦
+  
   - Archivo: CalculadoraScreen.kt
   - Responsabilidad: Observa el estado con collectAsStateWithLifecycle(), no contiene lógica.
   
-  •
+  
  * Componentes
   - Archivo: CalcComponents.kt
-
   - Responsabilidad: CalcRow y CalcCell reutilizables, sin dependencia del ViewModel.
 
  * Entry point
 
- - Archivo: MainActivity.kt
- - Responsabilidad: Configura tema y Scaffold; crea el ViewModel con viewModel().
+   - Archivo: MainActivity.kt
+   - Responsabilidad: Configura tema y Scaffold; crea el ViewModel con viewModel().
 
 
 
