@@ -29,16 +29,29 @@ com.example.calculadoratipoiphone/
 ```
 
 ### Capas
+* Model
+  - Archivo: CalculadoraModel.kt
+  - Responsabilidad: Evalúa expresiones matemáticas respetando jerarquía de operaciones (×÷ antes que +-).
+* ViewModel
+  - Archivo: CalculadoraViewModel.kt
+  - Responsabilidad: Mantiene CalculadoraUiState como StateFlow inmutable; expone onKey(label).
+* View
+  ◦
+  - Archivo: CalculadoraScreen.kt
+  - Responsabilidad: Observa el estado con collectAsStateWithLifecycle(), no contiene lógica.
+  
+  •
+ * Componentes
+  - Archivo: CalcComponents.kt
 
-| Capa | Archivo | Responsabilidad |
-|---|---|---|
-| **Model** | `CalculadoraModel.kt` | Evalúa expresiones matemáticas respetando jerarquía de operaciones (`×÷` antes que `+-`) |
-| **ViewModel** | `CalculadoraViewModel.kt` | Mantiene `CalculadoraUiState` como `StateFlow` inmutable; expone `onKey(label)` |
-| **View** | `CalculadoraScreen.kt` | Observa el estado con `collectAsStateWithLifecycle()`, no contiene lógica |
-| **Componentes** | `CalcComponents.kt` | `CalcRow` y `CalcCell` reutilizables, sin dependencia del ViewModel |
-| **Entry point** | `MainActivity.kt` | Configura tema y `Scaffold`; crea el ViewModel con `viewModel()` |
+  - Responsabilidad: CalcRow y CalcCell reutilizables, sin dependencia del ViewModel.
 
----
+ * Entry point
+
+ - Archivo: MainActivity.kt
+ - Responsabilidad: Configura tema y Scaffold; crea el ViewModel con viewModel().
+
+
 
 ## ✨ Funcionalidades
 
@@ -96,11 +109,14 @@ git checkout feature/mvvm
 
 ---
 
-## 📁 Ramas
+
+
+## 📁 Rama principal
 
 | Rama | Descripción |
 |---|---|
 | `main` | Versión original (todo en `MainActivity.kt`) |
+
 | `feature/mvvm` | Versión refactorizada con arquitectura MVVM |
 
 ---
@@ -108,5 +124,7 @@ git checkout feature/mvvm
 ## 👤 Autor
 
 **John Mesa**  
+**Juan Jose Restrepo**  
+**Andres Yarce**  
  Universidad Tecnológica de Pereira  
  [@johnmesa-cell](https://github.com/johnmesa-cell)
