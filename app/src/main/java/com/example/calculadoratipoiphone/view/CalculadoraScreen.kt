@@ -76,15 +76,17 @@ fun CalculadoraScreen(
                 .padding(horizontal = 20.dp, vertical = 10.dp),
             horizontalAlignment = Alignment.End
         ) {
-            Text(
+          Text(
                 text = state.expresion,
                 fontSize = if (state.resultado.isEmpty()) 72.sp else 36.sp,
+                lineHeight = if (state.resultado.isEmpty()) 80.sp else 40.sp, 
                 color = if (state.resultado.isEmpty()) Blanco else Color(0xFF888888),
                 fontWeight = FontWeight.Light,
                 textAlign = TextAlign.End,
                 maxLines = 2,
                 softWrap = true
-            )
+           )
+        
             if (state.resultado.isNotEmpty()) {
                 Text(
                     text = state.resultado,
